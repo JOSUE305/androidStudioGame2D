@@ -1,0 +1,23 @@
+[33mcommit f9c657e29697f30a63aaa7531987e65e27f8d43e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: JOSUE305 <elguicho0502@gmail.com>
+Date:   Sun Sep 22 16:46:12 2024 -0700
+
+    Joystick
+
+[33mcommit 8c3b001fa1c853a6e4f606b9513a5591a22cca96[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: JOSUE305 <elguicho0502@gmail.com>
+Date:   Sun Sep 22 15:35:41 2024 -0700
+
+    Player class
+
+[33mcommit f6aa137a7001d45c678f920ba8453e590801b5e2[m
+Author: JOSUE305 <elguicho0502@gmail.com>
+Date:   Sat Sep 21 23:02:15 2024 -0700
+
+    Game loop
+
+[33mcommit 14e8b97ece38af88fbd8f7dd9ab61a490d78e880[m
+Author: JOSUE305 <elguicho0502@gmail.com>
+Date:   Sat Sep 21 21:09:56 2024 -0700
+
+    setup
