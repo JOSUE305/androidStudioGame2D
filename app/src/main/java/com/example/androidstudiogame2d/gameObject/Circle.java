@@ -1,4 +1,4 @@
-package com.example.androidstudiogame2d.object;
+package com.example.androidstudiogame2d.gameObject;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -18,6 +18,22 @@ public abstract class Circle extends GameObject{
         paint=new Paint();
 
         paint.setColor(color);
+    }
+
+    /*
+    * @param obj1
+    * */
+    public static boolean isColliding(Circle obj1, Circle obj2) {
+        double distance = getDistanceBetweenObjects(obj1,obj2);
+        double distanceToColliding=obj1.getRadius() + obj2.getRadius();
+        if(distance<distanceToColliding) return true;
+        else return false;
+
+
+    }
+
+    private double getRadius() {
+        return radius;
     }
 
     public void draw(Canvas canvas) {

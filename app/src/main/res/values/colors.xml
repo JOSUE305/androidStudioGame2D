@@ -5,4 +5,9 @@
     <color name="blue">#0000FF</color>
     <color name="player">#FF0000</color>
     <color name="enemy">#00ffff</color>
+    <color name="spell">#ffff00</color>
+    <color name="healthBarBorder">#ABABAB</color>
+    <color name="healthBarHeath">#30EB10</color>
+    <color name="gameOver">#990A00</color>
+
 </resources>

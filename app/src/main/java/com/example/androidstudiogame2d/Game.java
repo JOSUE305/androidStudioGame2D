@@ -10,32 +10,49 @@ import android.view.SurfaceView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
-import com.example.androidstudiogame2d.object.Enemy;
-import com.example.androidstudiogame2d.object.Player;
+import com.example.androidstudiogame2d.gameObject.Circle;
+import com.example.androidstudiogame2d.gameObject.Enemy;
+import com.example.androidstudiogame2d.gameObject.Player;
+import com.example.androidstudiogame2d.gameObject.Spell;
+import com.example.androidstudiogame2d.gamePanel.GameOver;
+import com.example.androidstudiogame2d.gamePanel.Joystick;
+import com.example.androidstudiogame2d.gamePanel.Performance;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private final Player player;
     private final Joystick joystick;
-    private final Enemy enemy;
     private GameLoop gameLoop;
+    private List<Enemy>  enemyList = new ArrayList<Enemy>();
+    private List<Spell>  spellList = new ArrayList<Spell>();
+    private int joysticPointerId=0;
+    private int numberOfSpellToCast=0;
+    private GameOver gameOver;
+    private Performance performance;
 
 
     public Game(Context context)
     {
         super(context);
 
-
         //get surface holder and add callback "obtener soporte de superficie y agregar devolución de llamada"
         SurfaceHolder surfaceHolder=getHolder();
         surfaceHolder.addCallback(this);
 
-
         gameLoop = new GameLoop(this,surfaceHolder);
-        //initialize player
 
+        //iniciar panel de juego
+        performance=new Performance(context,gameLoop);
+        gameOver= new GameOver(context);
         joystick=new Joystick(275,600,70,40);
-        player =new Player(getContext(),joystick,500,500,30);
-        enemy=new Enemy(getContext(),player,500,200,30);
+
+        //iniciar los objetos del juego
+
+        player =new Player(context,joystick,500,500,30);
+
         
 
         setFocusable(true);
@@ -44,10 +61,18 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //handle touch event action
-        switch (event.getAction()){
+        switch (event.getActionMasked()){
             case MotionEvent.ACTION_DOWN:
-                if(joystick.isPressed((double)event.getX(),(double)event.getY())){
+            case MotionEvent.ACTION_POINTER_DOWN:
+                if(joystick.getIsPressed()){
+                    numberOfSpellToCast++;
+                }
+                else if(joystick.isPressed((double)event.getX(),(double)event.getY())){
+
+                    joysticPointerId=event.getPointerId(event.getActionIndex());
                     joystick.setIsPressed(true);
+                }else{
+                    numberOfSpellToCast++;
                 }
                 return true;
             case MotionEvent.ACTION_MOVE:
@@ -56,8 +81,11 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 }
                 return true;
             case MotionEvent.ACTION_UP:
-                joystick.setIsPressed(false);
-                joystick.resetActuator();
+            case MotionEvent.ACTION_POINTER_UP:
+                if(joysticPointerId ==event.getPointerId(event.getActionIndex())){
+                    joystick.setIsPressed(false);
+                    joystick.resetActuator();
+                }
                 return true;
         }
 
@@ -84,42 +112,82 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        drawnUPS(canvas);
-        drawnFPS(canvas);
+
+        player.draw(canvas);
+
+        for(Enemy enemy :enemyList){
+            enemy.draw(canvas);
+        }
+        for(Spell spell :spellList){
+            spell.draw(canvas);
+        }
 
         joystick.draw(canvas);
-        player.draw(canvas);
-        enemy.draw(canvas);
+        performance.draw(canvas);
+        
+
+        // dibujar el game over si el jugador muere
+        if(player.getHealthPoints()<=0){
+            gameOver.draw(canvas);
+            
+        }
+
 
     }
 
-    public void drawnUPS(Canvas canvas){
-       
-        String averageUPS = Double.toString(gameLoop.getAverageUPS());
-        Paint paint = new Paint();
-        int color= ContextCompat.getColor(getContext(),R.color.blue);
-        paint.setColor(color);
-        paint.setTextSize(50);
-        canvas.drawText("UPS"+averageUPS,100,100,paint);
 
-    }
-    public void drawnFPS(Canvas canvas){
-
-        String averageFPS = Double.toString(gameLoop.getAverageFPS());
-        Paint paint = new Paint();
-        int color= ContextCompat.getColor(getContext(),R.color.blue);
-        paint.setColor(color);
-        paint.setTextSize(50);
-        canvas.drawText("FPS"+averageFPS,100,200,paint);
-
-    }
 
 
     public void update() {
 
+        if(player.getHealthPoints()<=0){
+            return;
+        }
+
+
         joystick.update();
         player.update();
-        enemy.update();
+
+        //spawn enemy if is is time to spawn new enemys
+        if(Enemy.readyToSpawn()){
+            enemyList.add(new Enemy(getContext(),player));
+        }
+
+        while (numberOfSpellToCast >0){
+            spellList.add(new Spell(getContext(),player));
+            numberOfSpellToCast--;
+        }
+        //update state of each enemy
+        for(Enemy enemy :enemyList){
+            enemy.update();
+        }
+
+        //update state of each spell
+        for(Spell spell :spellList){
+            spell.update();
+        }
+
+        //iterate through enemylist and check for collision between each enemy and the player
+        Iterator<Enemy> iteratorEnemy = enemyList.iterator();
+        while (iteratorEnemy.hasNext()){
+            Circle enemy=iteratorEnemy.next();
+            if(Circle.isColliding(enemy,player)){
+                //remover el enemigo si hace colicion con el jugador
+                iteratorEnemy.remove();
+                player.setHealthPoints(player.getHealthPoints()-1);
+                continue;
+            }
+
+            Iterator<Spell> iteratorSpell =spellList.iterator();
+            while (iteratorSpell.hasNext()){
+                Circle spell= iteratorSpell.next();
+                if(Circle.isColliding(spell,enemy)){
+                    iteratorSpell.remove();
+                    iteratorEnemy.remove();
+                    break;
+                }
+            }
+        }
 
     }
 }
