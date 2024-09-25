@@ -1,6 +1,7 @@
 package com.example.androidstudiogame2d;
 
 import android.graphics.Canvas;
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
@@ -31,12 +32,14 @@ public class GameLoop extends Thread{
     }
 
     public void startLoop() {
+        Log.d("GameLoop.java","startLoop()");
         isRunning=true;
         start();
     }
 
     @Override
     public void run() {
+        Log.d("GameLoop.java","run()");
         super.run();
 
         int updateCount=0;
@@ -56,7 +59,9 @@ public class GameLoop extends Thread{
                 synchronized (surfaceHolder) {
                     game.update();
                     updateCount++;
+
                     game.draw(canvas);
+
                 }
             }catch (IllegalArgumentException e){
                 e.printStackTrace();
@@ -101,6 +106,16 @@ public class GameLoop extends Thread{
                 frameCount=0;
                 startTime=System.currentTimeMillis();
             }
+        }
+    }
+
+    public void stopLoop() {
+        Log.d("GameLoop.java","StopLoop()");
+        isRunning=false;
+        try {
+            join();
+        }catch (InterruptedException e){
+            e.printStackTrace();
         }
     }
 }

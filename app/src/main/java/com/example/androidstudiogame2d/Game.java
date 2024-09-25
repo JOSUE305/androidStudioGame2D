@@ -1,8 +1,11 @@
 package com.example.androidstudiogame2d;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -32,6 +35,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private int numberOfSpellToCast=0;
     private GameOver gameOver;
     private Performance performance;
+    private GameDisplay gameDisplay;
 
 
     public Game(Context context)
@@ -53,7 +57,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
         player =new Player(context,joystick,500,500,30);
 
-        
+        //iniciar la pantalla para que siga al jugador y siempre este en el centro de ella
+        DisplayMetrics displayMetrics =new DisplayMetrics();
+        ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        gameDisplay=new GameDisplay(displayMetrics.widthPixels,displayMetrics.heightPixels,player);
+
+
 
         setFocusable(true);
     }
@@ -93,50 +102,52 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     @Override
-    public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
+    public void surfaceCreated( SurfaceHolder holder) {
+        Log.d("Game.java","surfaceCreated()");
+        if(gameLoop.getState().equals(Thread.State.TERMINATED)){
+
+            gameLoop=new GameLoop(this,holder);
+        }
         gameLoop.startLoop();
 
 
     }
 
     @Override
-    public void surfaceChanged(@NonNull SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-
+    public void surfaceChanged( SurfaceHolder holder, int i, int i1, int i2) {
+        Log.d("Game.java","surfaceChanged()");
     }
 
     @Override
-    public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
-
+    public void surfaceDestroyed( SurfaceHolder holder) {
+        Log.d("Game.java","surfaceDestroyed()");
     }
 
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
 
-        player.draw(canvas);
+        player.draw(canvas,gameDisplay);
 
         for(Enemy enemy :enemyList){
-            enemy.draw(canvas);
+            enemy.draw(canvas,gameDisplay);
         }
         for(Spell spell :spellList){
-            spell.draw(canvas);
+            spell.draw(canvas,gameDisplay);
         }
 
         joystick.draw(canvas);
         performance.draw(canvas);
-        
+
 
         // dibujar el game over si el jugador muere
         if(player.getHealthPoints()<=0){
             gameOver.draw(canvas);
-            
+
         }
 
 
     }
-
-
-
 
     public void update() {
 
@@ -187,7 +198,14 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                     break;
                 }
             }
+
         }
 
+        gameDisplay.update();
+
+    }
+
+    public void pause() {
+        gameLoop.stopLoop();
     }
 }
