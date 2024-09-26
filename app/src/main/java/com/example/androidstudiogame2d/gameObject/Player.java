@@ -11,6 +11,9 @@ import com.example.androidstudiogame2d.gamePanel.HealtBar;
 import com.example.androidstudiogame2d.gamePanel.Joystick;
 import com.example.androidstudiogame2d.R;
 import com.example.androidstudiogame2d.Utils;
+import com.example.androidstudiogame2d.gamePanel.Performance;
+import com.example.androidstudiogame2d.graphics.Animator;
+import com.example.androidstudiogame2d.graphics.Sprite;
 /*
 player is the main character of the game, which the user can control with a touch
 joystick.
@@ -24,13 +27,19 @@ public class Player extends Circle{
     private final Joystick joystick;
     private HealtBar healtBar;
     private int healthPoints;
+    private Animator animator;
+    private PlayerState playeState;
 
-    public Player(Context context,Joystick joystick, double positionX, double positionY, double radius){
+    public Player(Context context, Joystick joystick, double positionX, double positionY, double radius, Animator animator){
 
         super(context,ContextCompat.getColor(context, R.color.player),positionX,positionY,radius);
         this.joystick=joystick;
         this.healtBar= new HealtBar(context,this);
+        this.animator=animator;
+        this.playeState= new PlayerState(this);
         this.healthPoints=MAX_HEALTH_POINTS;
+
+
 
     }
     public void update() {
@@ -49,22 +58,28 @@ public class Player extends Circle{
             directionY=velocityY/distance;
         }
 
+        playeState.update();
 
     }
 
     public void draw(Canvas canvas, GameDisplay gameDisplay){
-        super.draw(canvas,gameDisplay);
+        animator.draw(canvas,gameDisplay,this);
+
         healtBar.draw(canvas,gameDisplay);
-        
+
     }
 
 
     public int getHealthPoints() {
-      return healthPoints;
+        return healthPoints;
     }
 
     public void setHealthPoints(int healthPoints) {
         if(healthPoints>=0)
             this.healthPoints=healthPoints;
+    }
+
+    public PlayerState getPlayeState(){
+        return playeState;
     }
 }
