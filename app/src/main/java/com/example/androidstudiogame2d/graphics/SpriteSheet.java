@@ -8,12 +8,14 @@ import android.graphics.Rect;
 import com.example.androidstudiogame2d.R;
 
 public class SpriteSheet {
+    private static final int SPRITE_WIDTH_PIXELS = 64;
+    private static final int SPRITE_HEIGHT_PIXELS = 64;
     private Bitmap bitmap;
 
     public SpriteSheet(Context context){
         BitmapFactory.Options bitmapOptions=new BitmapFactory.Options();
         bitmapOptions.inScaled=false;
-        bitmap= BitmapFactory.decodeResource(context.getResources(), R.drawable.sprite_player_animated,bitmapOptions);
+        bitmap= BitmapFactory.decodeResource(context.getResources(), R.drawable.sprite_player_and_floors,bitmapOptions);
     }
 
     public Sprite[] getPlayerSpriteArray(){
@@ -33,5 +35,34 @@ public class SpriteSheet {
 
     public Bitmap getBitmap() {
         return bitmap;
+    }
+
+    public Sprite getMarmolSprite() {
+        return getSpriteByIndex(2,0);
+    }
+    public Sprite getMaderaHorSprite() {
+        return getSpriteByIndex(2,1);
+    }
+    public Sprite getMaderaVerSprite() {
+        return getSpriteByIndex(2,2);
+    }
+    public Sprite getCajonSprite() {
+        return getSpriteByIndex(2,3);
+    }
+    public Sprite getPiedraSprite() {
+        return getSpriteByIndex(2,4);
+    }
+
+
+
+
+    private Sprite getSpriteByIndex(int idxRow, int idxCol) {
+        return new Sprite(this,new Rect(
+                idxCol*SPRITE_WIDTH_PIXELS,
+                idxRow*SPRITE_HEIGHT_PIXELS,
+                (idxCol+1)*SPRITE_WIDTH_PIXELS,
+                (idxRow+1)*SPRITE_HEIGHT_PIXELS
+        ));
+
     }
 }

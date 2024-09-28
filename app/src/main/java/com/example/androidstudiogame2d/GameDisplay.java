@@ -1,9 +1,14 @@
 package com.example.androidstudiogame2d;
 
+import android.graphics.Rect;
+
 import com.example.androidstudiogame2d.gameObject.GameObject;
 
 public class GameDisplay {
 
+    public  final Rect DISPLAY_RECT ;
+    private final int widthPixels;
+    private final int heightPixels;
     private double gameToDisplayCoordinateOffSetX;
     private double gameToDisplayCoordinateOffSetY;
     private double displayCenterX;
@@ -13,6 +18,10 @@ public class GameDisplay {
     private GameObject centerObject;
 
     public GameDisplay(int widthPixels,int heightPixels,GameObject centerObject){
+
+        this.widthPixels=widthPixels;
+        this.heightPixels=heightPixels;
+        DISPLAY_RECT=new Rect(0,0,widthPixels,heightPixels);
         this.centerObject=centerObject;
 
         displayCenterX=widthPixels/2.0;
@@ -37,5 +46,14 @@ public class GameDisplay {
 
     public double gameToDisplayCoordinatesY(double y) {
         return y+gameToDisplayCoordinateOffSetY;
+    }
+
+    public Rect getGameRect() {
+        return new Rect(
+                (int)gameCenterX-widthPixels/2,
+                (int)gameCenterY-heightPixels/2,
+                (int)gameCenterX+widthPixels/2,
+                (int)gameCenterY+heightPixels/2
+        );
     }
 }
